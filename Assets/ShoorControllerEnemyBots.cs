@@ -18,6 +18,7 @@ public class ShoorControllerEnemyBots : MonoBehaviour {
     public float ValueOneShootProgress;
     public float ValueTripleShootProgress;
     public float speedProgressOneShoot;
+    public float speedProgressTripleShoot;
     public bool ReadyToOneShoot;
 
     // public OneShootTrigger oneShoot;
@@ -31,17 +32,23 @@ public class ShoorControllerEnemyBots : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (readyToShootInRateTime() && readyToShootInReloadEnergy() && EnemyInFront())
+        ProgressOneShoot();
+        ProgressTripleShoot();
+
+        if (readyToShootInRateTime() && readyToOneShootInEnergy() && EnemyInFront())
         {
             InstatiateMissile(CenterMissile, 0);
+            OneSimpleShotDone();
         }
         else
         {
-            if (triggerTripleShot())
+
+            if (readyToShootInRateTime() && readyToTripleShootInEnergy() && EnemyInFieldView())
             {
                 InstatiateMissile(LeftMissile, -angleMissile);
                 InstatiateMissile(CenterMissile, 0);
                 InstatiateMissile(RightMissile, angleMissile);
+                OneTripleShotDone();
                 // Debug.Log("un disparo TRIPLE");
             }
         }
@@ -58,12 +65,18 @@ public class ShoorControllerEnemyBots : MonoBehaviour {
         nextShoot = ShootRate + Time.time;
     }
 
-    bool EnemyInFront()
+    public bool EnemyInFieldView()
     {
-       return RayCastAgentController();
+        bool rayCastStatus = RayCastAgentTripleController();
+        return rayCastStatus;
+    }
+    public bool EnemyInFront()
+    {
+        bool rayCastStatus = RayCastAgentController();
+        return rayCastStatus;
       
     }
-    bool readyToShootInRateTime()
+    public bool readyToShootInRateTime()
     {
       
         if (Time.time > nextShoot)
@@ -74,41 +87,72 @@ public class ShoorControllerEnemyBots : MonoBehaviour {
     }
 
 
-    bool readyToShootInReloadEnergy()
+    public bool readyToTripleShootInEnergy()
+    {
+        if (ValueTripleShootProgress >= 100)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public bool readyToOneShootInEnergy()
     {
         float rateMissile = 100 / qtyShoot;
+        Debug.Log("rateMissile " + rateMissile);
         if (ValueOneShootProgress >= rateMissile)
         {
-            ValueOneShootProgress = ValueOneShootProgress - rateMissile;
             return true;
         }
         return false;
-    }
-    bool triggerTripleShot()
-    {
-        return false;
-        /*
-        if (tripleShoot.OneTriggerPressed && ReadyToTripleShoot.ReadyToShoot)
-        {
-            ReadyToTripleShoot.CurrentValue = 0;
-            return true;
-        }
-        return false;*/
     }
 
-    bool RayCastAgentController()
+    public void OneSimpleShotDone()
     {
-        int layerMask = 1 << 8;
+        float rateMissile = 100 / qtyShoot;
+        ValueOneShootProgress = ValueOneShootProgress - rateMissile;
+    }
+
+    public void OneTripleShotDone()
+    {
+        ValueTripleShootProgress = 0;
+    }
+
+    public bool RayCastAgentTripleController()
+    {
+
+        Debug.Log("triple raycast");
+        int layerMask = 1 << 12;
         RaycastHit hit;
-        UnityEngine.AI.NavMeshAgent agent;
-        agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+        //UnityEngine.AI.NavMeshAgent agent;
+        //agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
 
+        Vector3 leftRayRotation = Quaternion.AngleAxis(-angleMissile, transform.up) * transform.forward;
+        Vector3 rightRayRotation = Quaternion.AngleAxis(angleMissile, transform.up) * transform.forward;
 
-        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.up), out hit, rayCastMax, layerMask))
+        if (Physics.Raycast(transform.position, transform.TransformDirection(leftRayRotation) , out hit, rayCastMax, layerMask))
         {
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.up) * hit.distance, Color.yellow);
+            Debug.DrawRay(transform.position, transform.TransformDirection(leftRayRotation) * hit.distance, Color.yellow);
             return true;
-            //transform.GetComponent<UnityEngine.AI.NavMeshAgent>().velocity =  new Vector3 (0f, 0f, newNavMeshSpeed);
+        }
+        if (Physics.Raycast(transform.position, transform.TransformDirection(rightRayRotation), out hit, rayCastMax, layerMask))
+        {
+            Debug.DrawRay(transform.position, transform.TransformDirection(rightRayRotation) * hit.distance, Color.yellow);
+            return true;
+        }
+        return false;
+
+    }
+    public bool RayCastAgentController()
+    {
+        int layerMask = 1 << 12;
+        RaycastHit hit;
+        //UnityEngine.AI.NavMeshAgent agent;
+        //agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, rayCastMax, layerMask))
+        {
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
+            return true;
          }
         return false;
     }
@@ -117,16 +161,15 @@ public class ShoorControllerEnemyBots : MonoBehaviour {
         if (ValueOneShootProgress < 100)
         {
             ValueOneShootProgress += speedProgressOneShoot * Time.deltaTime;
-            ReadyToOneShoot = false;
-        }
-        else
-        {
-            ReadyToOneShoot = true;
         }
     }
 
     void ProgressTripleShoot()
     {
+        if (ValueTripleShootProgress < 100)
+        {
+            ValueTripleShootProgress += speedProgressTripleShoot * Time.deltaTime;
+        }
 
     }
 

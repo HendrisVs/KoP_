@@ -14,11 +14,11 @@ public class VirtualJoystick : MonoBehaviour, IDragHandler, IPointerDownHandler,
     private Canvas canvas;
     protected RectTransform background = null;
     private RectTransform handle = null;
-    Vector2 input = Vector2.zero;
+    //Vector2 input = Vector2.zero;
     //Para Joystick
     private void Start()
     {
-        Vector2 center = new Vector2(0.5f, 0.5f);
+        //Vector2 center = new Vector2(0.5f, 0.5f);
         BackGroundImage = GetComponent<Image>();
         JoystickImage = transform.GetChild(0).GetComponent<Image>();
     }
