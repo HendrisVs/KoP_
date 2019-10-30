@@ -5,6 +5,7 @@ using UnityEngine;
 public class MissileController : MonoBehaviour {
     private Rigidbody rig;
     public float speed;
+    public float damageValue;
     // Use this for initialization
     public float forceShoot;
     private void Awake()

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ShoorControllerEnemyBots : MonoBehaviour {
 
+    public float damageValueMissile;
+
     public float rayCastMax;
     public GameObject missile;
     public Transform LeftMissile;
@@ -42,7 +44,6 @@ public class ShoorControllerEnemyBots : MonoBehaviour {
         }
         else
         {
-
             if (readyToShootInRateTime() && readyToTripleShootInEnergy() && EnemyInFieldView())
             {
                 InstatiateMissile(LeftMissile, -angleMissile);
@@ -52,7 +53,6 @@ public class ShoorControllerEnemyBots : MonoBehaviour {
                 // Debug.Log("un disparo TRIPLE");
             }
         }
-
         //RayCastAgentController();
     }
 
@@ -62,6 +62,7 @@ public class ShoorControllerEnemyBots : MonoBehaviour {
         float RotationPlayer = pos.eulerAngles.y;
         GameObject missileShooted = Instantiate(missile, pos.position, Quaternion.Euler(90f, RotationPlayer + angleMissile, pos.rotation.z)) as GameObject; // Se gira por el prefab del laser
         missileShooted.GetComponent<Rigidbody>().AddForce(missileShooted.transform.up * forceShoot);
+        missileShooted.GetComponent<MissileController>().damageValue = damageValueMissile;
         nextShoot = ShootRate + Time.time;
     }
 
@@ -74,7 +75,6 @@ public class ShoorControllerEnemyBots : MonoBehaviour {
     {
         bool rayCastStatus = RayCastAgentController();
         return rayCastStatus;
-      
     }
     public bool readyToShootInRateTime()
     {
@@ -122,7 +122,7 @@ public class ShoorControllerEnemyBots : MonoBehaviour {
     {
 
         Debug.Log("triple raycast");
-        int layerMask = 1 << 12;
+        int layerMask = 1 << 13;
         RaycastHit hit;
         //UnityEngine.AI.NavMeshAgent agent;
         //agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
@@ -145,7 +145,7 @@ public class ShoorControllerEnemyBots : MonoBehaviour {
     }
     public bool RayCastAgentController()
     {
-        int layerMask = 1 << 12;
+        int layerMask = 1 << 13;
         RaycastHit hit;
         //UnityEngine.AI.NavMeshAgent agent;
         //agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
@@ -163,7 +163,6 @@ public class ShoorControllerEnemyBots : MonoBehaviour {
             ValueOneShootProgress += speedProgressOneShoot * Time.deltaTime;
         }
     }
-
     void ProgressTripleShoot()
     {
         if (ValueTripleShootProgress < 100)
@@ -172,6 +171,4 @@ public class ShoorControllerEnemyBots : MonoBehaviour {
         }
 
     }
-
-
 }

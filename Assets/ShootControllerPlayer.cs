@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ShootControllerPlayer : MonoBehaviour {
+    public float damageValueMissile;
     public OneShootTrigger oneShoot;
     public OneShootTrigger tripleShoot;
     public ProgressBarController ReadyToTripleShoot;
@@ -50,7 +51,10 @@ public class ShootControllerPlayer : MonoBehaviour {
     {
         float RotationPlayer = pos.eulerAngles.y;
         GameObject missileShooted = Instantiate(missile, pos.position, Quaternion.Euler(90f, RotationPlayer+ angleMissile, pos.rotation.z)) as GameObject; // Se gira por el prefab del laser
+        
+       missileShooted.GetComponent<MissileController>().damageValue = damageValueMissile;
         missileShooted.GetComponent<Rigidbody>().AddForce(missileShooted.transform.up * forceShoot);
+
         nextShoot = ShootRate + Time.time;
     }
 
